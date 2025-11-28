@@ -67,7 +67,8 @@ document.addEventListener("DOMContentLoaded", () => {
       fraudProgress.textContent = `${probPercent}%`;
       // Update card background based on risk level
       resultCard.classList.remove("bg-success", "bg-warning", "bg-danger");
-      if (data.risk_level === "Safe") {
+      // Apply color based on risk level (Low → green, Suspicious → yellow, Critical → red)
+      if (data.risk_level === "Low") {
         resultCard.classList.add("bg-success");
       } else if (data.risk_level === "Suspicious") {
         resultCard.classList.add("bg-warning");

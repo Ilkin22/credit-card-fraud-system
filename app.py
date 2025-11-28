@@ -51,7 +51,9 @@ def get_db_connection(db_path: Path) -> sqlite3.Connection:
 
 
 def create_app() -> Flask:
-    app = Flask(__name__)
+    # Explicitly specify template and static folders relative to the project root.  This
+    # avoids issues when the app is executed from different working directories.
+    app = Flask(__name__, template_folder="templates", static_folder="static")
 
     # Determine model and scaler paths
     model_path, scaler_path = get_model_and_scaler_paths()

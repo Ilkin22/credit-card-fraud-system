@@ -9,6 +9,8 @@ training and prediction.
 from pathlib import Path
 from typing import Tuple
 
+import sqlite3  # Needed for type hints and DB operations
+
 
 # Define the feature columns used both for training and prediction.
 # Feature columns used for training and prediction. These follow the
@@ -127,6 +129,14 @@ def map_probability_to_risk(probability: float) -> Tuple[str, str]:
     mitigation step. Adjusting thresholds here will affect both the API
     and the user interface consistently.
 
+    The thresholds are defined as follows:
+
+    - **Critical** (p > 0.80): Very high likelihood of fraud; the
+      system should immediately block the transaction.
+    - **Suspicious** (0.50 < p ≤ 0.80): Moderate risk; the system
+      should request additional verification (e.g. SMS code).
+    - **Low** (p ≤ 0.50): Low risk; the transaction can be allowed.
+
     Parameters
     ----------
     probability : float
@@ -135,14 +145,14 @@ def map_probability_to_risk(probability: float) -> Tuple[str, str]:
     Returns
     -------
     Tuple[str, str]
-        A tuple of the risk level and the recommended action.
+        A tuple containing the risk level and the recommended action.
     """
     if probability > 0.80:
         # Critical risk: transaction is very likely fraudulent
-        return "Critical", "Block"
+        return "Critical", "Block Transaction"
     elif probability > 0.50:
         # Suspicious transaction: recommend verifying via SMS or other method
-        return "Suspicious", "Verify (SMS)"
+        return "Suspicious", "Request SMS Verification"
     else:
-        # Safe transaction
-        return "Safe", "Allow"
+        # Low risk transaction
+        return "Low", "Allow Transaction"
