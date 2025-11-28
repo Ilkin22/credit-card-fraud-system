@@ -1,0 +1,20 @@
+/* Custom styling to complement the Bootstrap dark theme */
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card {
+  border-radius: 0.5rem;
+}
+
+.card-header {
+  font-weight: bold;
+}
+
+#result-card {
+  transition: background-color 0.3s ease-in-out;
+}
+
+#recent-table tbody tr td {
+  vertical-align: middle;
+}
