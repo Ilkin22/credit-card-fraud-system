@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BankSecure — Fraud Intelligence System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
+            <path d="M11 2L3 6v5c0 4.4 3.4 8.5 8 9.5 4.6-1 8-5.1 8-9.5V6L11 2z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M8 11l2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="logo-text">BankSecure</span>
+        <span class="logo-badge">FRAUD INTELLIGENCE</span>
+      </div>
+      <div class="header-status">
+        <span class="status-dot"></span>
+        <span class="status-label">ML Engine Active</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="stats-bar">
+    <div class="stat-chip">
+      <span class="stat-num" id="stat-total">—</span>
+      <span class="stat-lbl">Total Analyzed</span>
+    </div>
+    <div class="stat-chip crit">
+      <span class="stat-num" id="stat-critical">—</span>
+      <span class="stat-lbl">Critical Blocks</span>
+    </div>
+    <div class="stat-chip warn">
+      <span class="stat-num" id="stat-suspicious">—</span>
+      <span class="stat-lbl">Suspicious</span>
+    </div>
+    <div class="stat-chip safe">
+      <span class="stat-num" id="stat-safe">—</span>
+      <span class="stat-lbl">Safe Allowed</span>
+    </div>
+    <div class="stat-chip">
+      <span class="stat-num mono" id="stat-avg-prob">—</span>
+      <span class="stat-lbl">Avg. Risk Score</span>
+    </div>
+  </div>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <div class="panel">
+        <div class="panel-hd">
+          <span>Transaction Input</span>
+          <div class="demo-btns">
+            <button class="btn-ghost" id="btn-safe">Safe Demo</button>
+            <button class="btn-ghost highlight" id="btn-risky">Risky Demo</button>
+          </div>
+        </div>
+        <div class="form-scroll">
+          <p class="hint">PCA-transformed features (V1–V28) plus transaction Amount. All fields are numeric.</p>
+          <form id="transaction-form" autocomplete="off">
+            {% for feature in features %}
+            <div class="field">
+              <label for="{{ feature }}">{{ feature }}</label>
+              <input type="number" step="any" id="{{ feature }}" name="{{ feature }}" placeholder="0.0" required />
+            </div>
+            {% endfor %}
+            <button type="submit" class="btn-primary" id="submit-btn">
+              <span id="btn-label">Analyze Transaction</span>
+              <span id="btn-spinner" class="spinner hidden"></span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </aside>
+
+    <section class="content">
+      <div class="result-card" id="result-card" data-state="idle">
+        <div class="result-idle" id="result-idle">
+          <div class="idle-glyph">⬡</div>
+          <p>Submit a transaction to run fraud analysis</p>
+        </div>
+        <div class="result-live hidden" id="result-live">
+          <div class="result-header">
+            <div class="risk-badge" id="risk-badge">LOW</div>
+            <div class="result-info">
+              <div class="result-action-text" id="result-action-text">—</div>
+              <div class="result-time" id="result-time">—</div>
+            </div>
+          </div>
+          <div class="prob-gauge">
+            <div class="gauge-row">
+              <span class="gauge-label">Fraud Probability</span>
+              <span class="gauge-pct" id="gauge-pct">0.00%</span>
+            </div>
+            <div class="gauge-track">
+              <div class="gauge-bar" id="gauge-bar" style="width:0%"
+                   role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+          </div>
+          <div class="result-grid">
+            <div class="rg-item">
+              <span class="rg-key">Raw Score</span>
+              <span class="rg-val mono" id="rg-score">—</span>
+            </div>
+            <div class="rg-item">
+              <span class="rg-key">Prediction</span>
+              <span class="rg-val" id="rg-pred">—</span>
+            </div>
+            <div class="rg-item">
+              <span class="rg-key">Recommended Action</span>
+              <span class="rg-val" id="rg-action">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd">
+          <span>Recent Decisions</span>
+          <div class="demo-btns">
+            <select id="limit-sel" class="sel-sm">
+              <option value="10">10 rows</option>
+              <option value="20" selected>20 rows</option>
+              <option value="50">50 rows</option>
+            </select>
+            <button class="btn-ghost" id="btn-refresh">↻</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="dtable">
+            <thead><tr>
+              <th>Time</th>
+              <th>Amount</th>
+              <th>Risk</th>
+              <th>Action</th>
+              <th>Probability</th>
+            </tr></thead>
+            <tbody id="recent-tbody">
+              <tr class="no-data"><td colspan="5">No transactions yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
